@@ -1,13 +1,35 @@
-
 USE CustomerChurnDB;
 GO
 
-/* ==========================================
-   1. CUSTOMER CHURN — RAW STAGING
-   Source: telecom_customer_churn.csv
-   ========================================== */
+/* ============================================================================
+   PROJECT : Customer Churn Prediction & Retention Intelligence System
+   FILE    : 03_create_staging_tables.sql
+   PURPOSE : Create raw staging tables for the three source CSV files.
 
-IF OBJECT_ID('stg.CustomerChurn', 'U') IS NULL
+   SOURCES : telecom_customer_churn.csv
+             telecom_zipcode_population.csv
+             telecom_data_dictionary.csv
+
+   CONTENTS:
+      01. Create Customer Churn Staging Table
+      02. Create ZIP Code Population Staging Table
+      03. Create Data Dictionary Staging Table
+      04. Verify Staging Table Structures
+
+   NOTE    : Source columns are stored as NVARCHAR to preserve raw values.
+             Existing tables are not recreated or modified.
+             Requires the stg schema from 02_create_schemas.sql.
+   ============================================================================ */
+
+
+-- ============================================================================
+-- 01. CREATE CUSTOMER CHURN STAGING TABLE
+-- ============================================================================
+-- Source  : telecom_customer_churn.csv
+-- Output  : stg.CustomerChurn with 38 source columns.
+-- ============================================================================
+
+IF OBJECT_ID(N'stg.CustomerChurn', N'U') IS NULL
 BEGIN
     CREATE TABLE stg.CustomerChurn
     (
@@ -53,12 +75,15 @@ BEGIN
 END;
 GO
 
-/* ==========================================
-   2. ZIP CODE POPULATION
-   Source: telecom_zipcode_population.csv
-   ========================================== */
 
-IF OBJECT_ID('stg.ZipCodePopulation', 'U') IS NULL
+-- ============================================================================
+-- 02. CREATE ZIP CODE POPULATION STAGING TABLE
+-- ============================================================================
+-- Source  : telecom_zipcode_population.csv
+-- Output  : stg.ZipCodePopulation with 2 source columns.
+-- ============================================================================
+
+IF OBJECT_ID(N'stg.ZipCodePopulation', N'U') IS NULL
 BEGIN
     CREATE TABLE stg.ZipCodePopulation
     (
@@ -68,12 +93,15 @@ BEGIN
 END;
 GO
 
-/* ==========================================
-   3. DATA DICTIONARY
-   Source: telecom_data_dictionary.csv
-   ========================================== */
 
-IF OBJECT_ID('stg.DataDictionary', 'U') IS NULL
+-- ============================================================================
+-- 03. CREATE DATA DICTIONARY STAGING TABLE
+-- ============================================================================
+-- Source  : telecom_data_dictionary.csv
+-- Output  : stg.DataDictionary with 3 source columns.
+-- ============================================================================
+
+IF OBJECT_ID(N'stg.DataDictionary', N'U') IS NULL
 BEGIN
     CREATE TABLE stg.DataDictionary
     (
@@ -84,20 +112,24 @@ BEGIN
 END;
 GO
 
-/* ==========================================
-   4. VALIDATE TABLE STRUCTURES
-   ========================================== */
+
+-- ============================================================================
+-- 04. VERIFY STAGING TABLE STRUCTURES
+-- ============================================================================
+-- Purpose : Check the column count of the staging tables.
+-- Expected: CustomerChurn = 38; ZipCodePopulation = 2; DataDictionary = 3.
+-- ============================================================================
 
 SELECT
     s.name AS SchemaName,
     t.name AS TableName,
     COUNT(c.column_id) AS TotalColumns
-FROM sys.tables t
-INNER JOIN sys.schemas s
+FROM sys.tables AS t
+INNER JOIN sys.schemas AS s
     ON t.schema_id = s.schema_id
-INNER JOIN sys.columns c
+INNER JOIN sys.columns AS c
     ON t.object_id = c.object_id
-WHERE s.name = 'stg'
+WHERE s.name = N'stg'
 GROUP BY
     s.name,
     t.name
